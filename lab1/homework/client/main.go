@@ -17,16 +17,15 @@ const (
 	TCP Protocol = "tcp"
 	UDP Protocol = "udp"
 )
-
 type Client struct {
 	nick string
-	tcpConn net.TCPConn // TCP unicast
-	udpConn net.UDPConn // UDP unicast
-	udpMulticastConn net.UDPConn // UDP multicast
+	tcpConn *net.TCPConn // TCP unicast
+	udpConn *net.UDPConn // UDP unicast
+	udpMulticastConn *net.UDPConn // UDP multicast
 }
 
 type IClient interface {
-	connect(protocol Protocol, address string, port string) error
+	connect(protocol Protocol, address string, port string) (net.Conn)
 	getInstance() *Client
 	disconnect()
 }
@@ -41,8 +40,8 @@ func (c *Client) getInstance() *Client {
 	return c
 }
 
-func (c *Client) connect(protocol Protocol, address string, port string) error {
-	var err error
+func (c *Client) connect(protocol Protocol, address string, port string) (net.Conn) {
+	var connection net.Conn
 
 	port_, err := strconv.Atoi(port)
 	if err != nil {
@@ -51,27 +50,27 @@ func (c *Client) connect(protocol Protocol, address string, port string) error {
 
 	switch protocol {
 	case TCP:
-		fmt.Println("Connecting to TCP...")
 		var conn *net.TCPConn
 		conn, err = net.DialTCP(string(protocol), nil, &net.TCPAddr{
 			IP:   net.ParseIP(address),
 			Port: port_,
 		})
 		if (err == nil) {
-			c.tcpConn = *conn
+			c.tcpConn = conn
 			c.sendUnicast(TCP, c.nick)
 		}
+		connection = conn
 	case UDP:
-		fmt.Println("Connecting to UDP...")
 		var conn *net.UDPConn
 		conn, err = net.DialUDP(string(protocol), nil, &net.UDPAddr{
 			IP:   net.ParseIP(address),
 			Port: port_,
 		})
 		if (err == nil) {
-			c.udpConn = *conn
+			c.udpConn = conn
 			c.sendUnicast(UDP, c.nick)
 		}
+		connection = conn
 	}
 
 	if err != nil {
@@ -79,7 +78,7 @@ func (c *Client) connect(protocol Protocol, address string, port string) error {
 	}
 
 	fmt.Println(fmt.Sprintf("Connected to %s://%s:%s", protocol, address, port))
-	return nil
+	return connection
 }
 
 func (c *Client) sendUnicast(protocol Protocol, message string) error {
@@ -105,14 +104,24 @@ func (c *Client) receiveUnicast(protocol Protocol) error {
 }
 
 func (c *Client) receiveMulticast() error {
-	return receiveMessage(&c.udpMulticastConn)
+	return receiveMessage(c.udpMulticastConn)
 }
 
 func (c *Client) disconnect() {
 	fmt.Println("\b\b\b\bDisconnecting...")
-	c.tcpConn.Close()
-	c.udpConn.Close()
-	c.udpMulticastConn.Close()
+	
+	if c.tcpConn != nil {
+		c.tcpConn.Close()
+		c.tcpConn = nil
+	}
+	if c.udpConn != nil {
+		c.udpConn.Close()
+		c.udpConn = nil
+	}
+	if c.udpMulticastConn != nil {
+		c.udpMulticastConn.Close()
+		c.udpMulticastConn = nil
+	}
 }
 
 
@@ -144,9 +153,10 @@ func (h *ConnectionHandler) senderLoop() {
 	for {
 		var message string
 		var handler InputHandler
+
 		fmt.Print(">>> ")
 		fmt.Scanln(&message)
-		
+
 		handler, ok := handlers[message]
 		if !ok {
 			handler = h.handleSendTCP
@@ -180,7 +190,7 @@ func (h *ConnectionHandler) multicastReceiverLoop() {
 func (h *ConnectionHandler) handle() {
 	fmt.Println("Starting connection handler...")
 	go h.tcpReceiverLoop()
-	// go h.udpReceiverLoop()
+	go h.udpReceiverLoop()
 	// go h.multicastReceiverLoop()
 	h.senderLoop()
 }
@@ -223,14 +233,18 @@ func (h *ConnectionHandler) catchReceiveError(err error) {
 func selectConnection(c Client, protocol Protocol) net.Conn {
 	switch protocol {
 	case TCP:
-		return &c.tcpConn
+		return c.tcpConn
 	case UDP:
-		return &c.udpConn
+		return c.udpConn
 	}
 	return nil
 }
 
 func receiveMessage(conn net.Conn) error {
+	if conn == nil { // Return if connection was closed
+		return nil
+	}
+
 	// TODO - improve to allow reading any number of bytes
 	buf := make([]byte, 1024)
 	n, err := conn.Read(buf)
@@ -246,31 +260,29 @@ func receiveMessage(conn net.Conn) error {
 
 
 func main() {
-	art := `                ____                    
-						____ \__ \
-						\__ \__/ / __
-						__/ ____ \ \ \    ____
-					/ __ \__ \ \/ / __ \__ \
-			____ \ \ \__/ / __ \/ / __/ / __
-____ \__ \ \/ ____ \/ / __/ / __ \ \ \
-\__ \__/ / __ \__ \__/ / __ \ \ \ \/
-__/ ____ \ \ \__/ ____ \ \ \ \/ / __
-/ __ \__ \ \/ ____ \__ \ \/ / __ \/ /
-\ \ \__/ / __ \__ \__/ / __ \ \ \__/
-\/ ____ \/ / __/ ____ \ \ \ \/ ____
-		\__ \__/ / __ \__ \ \/ / __ \__ \
-		__/ ____ \ \ \__/ / __ \/ / __/ / __
-	/ __ \__ \ \/ ____ \/ / __/ / __ \/ /
-	\/ / __/ / __ \__ \__/ / __ \/ / __/
-	__/ / __ \ \ \__/ ____ \ \ \__/ / __
-	/ __ \ \ \ \/ ____ \__ \ \/ ____ \/ /
-	\ \ \ \/ / __ \__ \__/ / __ \__ \__/
-	\/ / __ \/ / __/ ____ \ \ \__/
-			\ \ \__/ / __ \__ \ \/
-			\/      \ \ \__/ / __
-								\/ ____ \/ /
-									\__ \__/
-									__/`
+	art := `            
+     / \
+    / _ \
+   | / \ |
+   ||   || _______
+   ||   || |\     \
+   ||   || ||\     \
+   ||   || || \    |
+   ||   || ||  \__/
+   ||   || ||   ||
+    \\_/ \_/ \_//
+   /   _     _   \
+  /               \
+  |    O     O    |
+  |   \  ___  /   |                           
+ /     \ \_/ /     \
+/  -----  |  --\    \
+|     \__/|\__/ \   |
+\       |_|_|       /
+ \_____       _____/
+       \     /
+       |     |
+`
 
 	// Load config from env
 	config.LoadConfig()
@@ -279,15 +291,15 @@ __/ ____ \ \ \__/ ____ \ \ \ \/ / __
 	nick := flag.String("nick", "Anonymous", "The client nickname")
 	port := flag.String("port", os.Getenv("PORT"), "The server port")
 	address := flag.String("address", os.Getenv("ADDRESS"), "The server address")
-	multicastAddress := flag.String("m_address", os.Getenv("MULTICAST_ADDRESS"), "The multicast address")
-	multicastPort := flag.String("m_port", os.Getenv("MULTICAST_PORT"), "The multicast port")
+	// multicastAddress := flag.String("m_address", os.Getenv("MULTICAST_ADDRESS"), "The multicast address")
+	// multicastPort := flag.String("m_port", os.Getenv("MULTICAST_PORT"), "The multicast port")
 	flag.Parse()
 
 	// Crate client
 	client := createClient(*nick)
 	client.connect(TCP, *address, *port)
 	client.connect(UDP, *address, *port)
-	client.connect(UDP, *multicastAddress, *multicastPort)
+	// client.connect(UDP, *multicastAddress, *multicastPort) // TODO
 	defer client.disconnect() // Disconnect on exit
 
 	// Handle connection

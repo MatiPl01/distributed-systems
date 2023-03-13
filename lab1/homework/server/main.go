@@ -58,7 +58,7 @@ func (s *Server) listen(port string) error {
 		return err
 	}
 
-	s.acceptConnections();
+	s.handleConnections();
 
 	return nil
 }
@@ -84,7 +84,7 @@ func (s *Server) listenTCP(port int) error {
 	}
 
 	s.tcpListener = listener
-	log.Printf("Listening on tcp port %d...\n", port)
+	fmt.Printf("Listening on tcp port %d...\n", port)
 	return nil
 }
 
@@ -98,13 +98,12 @@ func (s *Server) listenUDP(port int) error {
 	}
 
 	s.udpListener = listener
-	log.Printf("Listening on udp port %d...\n", port)
+	fmt.Printf("Listening on udp port %d...\n", port)
 	return nil
 }
 
-func (s *Server) acceptConnections() {
+func (s *Server) handleConnections() {
 	go s.acceptTCPConnections()
-	go s.acceptUDPConnections()
 	s.handleUDPConnections()
 }
 
@@ -119,15 +118,6 @@ func (s *Server) acceptTCPConnections() {
 	}
 }
 
-func (s *Server) acceptUDPConnections() {
-	for {
-		err := s.acceptUDP()
-		if err != nil {
-			log.Fatal(fmt.Sprintf("Error accepting udp connection: %s", err))
-		}
-	}
-}
-
 func (s *Server) acceptTCP() (net.Conn, error) {
 	conn, err := s.tcpListener.Accept()
 	if err != nil {
@@ -137,27 +127,6 @@ func (s *Server) acceptTCP() (net.Conn, error) {
 	s.tcpConnections[conn.RemoteAddr().String()] = &TCPConnection{connection: conn}
 	log.Printf("Accepted tcp connection from %s\n", conn.RemoteAddr().String())
 	return conn, nil
-}
-
-func (s *Server) acceptUDP() (error) {
-	buffer := make([]byte, 1024)
-	n, addr, err := s.udpListener.ReadFromUDP(buffer)
-	if err != nil {
-		log.Fatal(fmt.Sprintf("Error reading from udp connection: %s", err))
-	}
-	nick := string(buffer[:n])
-
-	// Check if nick is already taken
-	for _, conn := range s.udpConnections {
-		if conn.nick == nick {
-			err := fmt.Errorf("Nick %s is already taken", nick)
-			log.Fatal(fmt.Sprintf("Error accepting udp connection: %s", err))
-		}
-	}	
-
-	s.udpConnections[addr.String()] = &UDPConnection{address: addr, nick: nick}
-	log.Printf("Received udp message from %s: %s\n", addr.String(), nick)
-	return nil
 }
 
 func (s *Server) handleTCPConnection(conn net.Conn) {
@@ -197,11 +166,17 @@ func (s *Server) handleUDPConnections() {
 		if err != nil {
 			log.Fatal(fmt.Sprintf("Error reading from udp connection: %s", err))
 		}
-		
-		// Send message to all other users
-		err = s.sendUDPMessages(addr, msg);
-		if err != nil {
-			log.Fatal(fmt.Sprintf("Error sending udp messages: %s", err))
+
+		if s.udpConnections[addr.String()] == nil {
+			// Add the new connection and save the user nick
+			s.handleNewUDPConnection(addr, msg)
+		} else {
+			fmt.Printf("Received udp message from %s (%s): %s\n", addr.String(), s.udpConnections[addr.String()].nick, msg)
+			// Send message to all other users
+			err = s.sendUDPMessages(addr, msg);
+			if err != nil {
+				log.Fatal(fmt.Sprintf("Error sending udp messages: %s", err))
+			}
 		}
 	}
 }
@@ -214,8 +189,6 @@ func (s *Server) readTCPMessage(conn net.Conn) (string, error) {
 	if err != nil {
 		if err == io.EOF {
 			log.Printf("Connection closed by %s\n", conn.RemoteAddr().String())
-			delete(s.tcpConnections, conn.RemoteAddr().String())
-			conn.Close()
 			return "", err
 		}
 		log.Fatal(fmt.Sprintf("Error reading from tcp connection: %s", err))
@@ -228,25 +201,45 @@ func (s *Server) readTCPMessage(conn net.Conn) (string, error) {
 func (s *Server) handleTCPUserNick(conn net.Conn) error {
 	nick, err := s.readTCPMessage(conn)
 	if err != nil {
-		log.Fatal(fmt.Sprintf("Error reading from tcp connection: %s", err))
+		if err == io.EOF {
+			return err
+		}
+		return err
 	}
 
 	// Check if nick is already taken
 	for _, otherConn := range s.tcpConnections {
 		if nick == otherConn.nick {
 			err := fmt.Errorf("Nick %s is already taken", nick)
-			fmt.Printf("Error handling tcp connection: %s\n", err)
+			log.Println("Error handling tcp connection:", err)
 			conn.Write([]byte(fmt.Sprintf("SERVER: %s", err)))
 			return err
 		}
 	}
 
+	// Update the nickname in the TCP connection
 	s.tcpConnections[conn.RemoteAddr().String()].nick = nick
 	log.Printf("Received tcp nickname from %s: %s\n", conn.RemoteAddr().String(), nick)
 	return nil
 }
 
-func (s *Server) readUDPMessage() (addr net.Addr, msg string, err error) {
+func (s *Server) handleNewUDPConnection(addr *net.UDPAddr, nick string) error {
+	// Check if nick is already taken
+	for _, conn := range s.udpConnections {
+		if conn.nick == nick {
+			err := fmt.Errorf("Nick %s is already taken", nick)
+			log.Println("Error handling udp connection:", err)
+			s.udpListener.WriteToUDP([]byte(fmt.Sprintf("SERVER: %s", err)), addr)
+			return err
+		}
+	}	
+
+	s.udpConnections[addr.String()] = &UDPConnection{address: addr, nick: nick}
+	log.Printf("Received udp nickname from %s: %s\n", addr.String(), nick)
+	return nil
+}
+
+func (s *Server) readUDPMessage() (addr *net.UDPAddr, msg string, err error) {
 	// TODO - remove limit to 1024 characters
 	buf := make([]byte, 1024)
 	n, addr, err := s.udpListener.ReadFromUDP(buf)
@@ -264,7 +257,7 @@ func (s *Server) sendTCPMessages(conn net.Conn, msg string) error {
 			continue
 		}
 
-		fmt.Printf("Sending message to: %s (%s)\n", otherConn.connection.RemoteAddr().String(), otherConn.nick)
+		log.Printf("Sending tcp message to: %s (%s)\n", otherConn.connection.RemoteAddr().String(), otherConn.nick)
 
 		_, err := otherConn.connection.Write([]byte(fmt.Sprintf("%s: %s", s.tcpConnections[conn.RemoteAddr().String()].nick, msg)))
 		if err != nil {
@@ -281,7 +274,9 @@ func (s *Server) sendUDPMessages(addr net.Addr, msg string) error {
 			continue
 		}
 
-		_, err := s.udpListener.WriteToUDP([]byte(fmt.Sprintf("%s: %s", conn.nick, msg)), conn.address)
+		log.Printf("Sending udp message to: %s (%s)\n", conn.address.String(), conn.nick)
+
+		_, err := s.udpListener.WriteToUDP([]byte(fmt.Sprintf("%s: %s", s.udpConnections[addr.String()].nick, msg)), conn.address)
 		if err != nil {
 			log.Fatal(fmt.Sprintf("Error writing to udp connection: %s", err))
 		}
@@ -293,7 +288,7 @@ func (s *Server) sendUDPMessages(addr net.Addr, msg string) error {
 func (s *Server) closeTCPConnection(conn net.Conn) {
 	conn.Close()
 	delete(s.tcpConnections, conn.RemoteAddr().String())
-	fmt.Printf("Closed connection with %s\n", conn.RemoteAddr().String())
+	log.Printf("Closed connection for %s\n", conn.RemoteAddr().String())
 }
 
 

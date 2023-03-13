@@ -182,7 +182,6 @@ func (s *Server) handleUDPConnections() {
 }
 
 func (s *Server) readTCPMessage(conn net.Conn) (string, error) {
-	// TODO - remove limit to 1024 characters
 	buf := make([]byte, 1024)
 	n, err := conn.Read(buf)
 
@@ -224,23 +223,12 @@ func (s *Server) handleTCPUserNick(conn net.Conn) error {
 }
 
 func (s *Server) handleNewUDPConnection(addr *net.UDPAddr, nick string) error {
-	// Check if nick is already taken
-	for _, conn := range s.udpConnections {
-		if conn.nick == nick {
-			err := fmt.Errorf("Nick %s is already taken", nick)
-			log.Println("Error handling udp connection:", err)
-			s.udpListener.WriteToUDP([]byte(fmt.Sprintf("SERVER: %s", err)), addr)
-			return err
-		}
-	}	
-
 	s.udpConnections[addr.String()] = &UDPConnection{address: addr, nick: nick}
 	log.Printf("Received udp nickname from %s: %s\n", addr.String(), nick)
 	return nil
 }
 
 func (s *Server) readUDPMessage() (addr *net.UDPAddr, msg string, err error) {
-	// TODO - remove limit to 1024 characters
 	buf := make([]byte, 1024)
 	n, addr, err := s.udpListener.ReadFromUDP(buf)
 	

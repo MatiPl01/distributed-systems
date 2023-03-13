@@ -136,7 +136,7 @@ func (c *Client) connectUDP(address net.IP, port int) error {
 
 func (c *Client) connectMulticast(address net.IP, port int) error {
 	// Get interface name
-	ifi, err := net.InterfaceByName(INTERFACE_TO_USE)
+	ifi, err := net.InterfaceByName("en0")
 	if (err != nil) {
 		return err
 	}
@@ -175,18 +175,19 @@ func (c *Client) sendUnicast(protocol Protocol, message string) error {
 	}
 
 	_, err := conn.Write([]byte(message))
-	if err != nil {
-		log.Fatal(fmt.Sprintf("Error sending message: %s", message))
-	}
-	return nil
+	return err
 }
 
 func (c *Client) sendMulticast(message string) error {
-	_, err := c.udpMulticastSenderConn.Write([]byte(message))
+	// Send the nickname
+	_, err := c.udpMulticastSenderConn.Write([]byte(c.nick))
 	if err != nil {
-		log.Fatal(fmt.Sprintf("Error sending message: %s", message))
+		return err
 	}
-	return nil
+
+	// Send the message
+	_, err = c.udpMulticastSenderConn.Write([]byte(message))
+	return err
 }
 
 func (c *Client) receiveUnicast(protocol Protocol) error {
@@ -199,11 +200,35 @@ func (c *Client) receiveUnicast(protocol Protocol) error {
 		conn = c.udpConn
 	}
 
-	return receiveMessage(conn)
+	// Receive the message
+	msg, err := receiveMessage(conn)
+	if err != nil {
+		return err
+	}
+
+	printMessage(msg)
+	return nil
 }
 
 func (c *Client) receiveMulticast() error {
-	return receiveMessage(c.udpMulticastReceiverConn)
+	// Receive the nickname
+	nick, err := receiveMessage(c.udpMulticastReceiverConn)
+	if err != nil {
+		return err
+	}
+
+	// Receive the message
+	msg, err := receiveMessage(c.udpMulticastReceiverConn)
+	if err != nil {
+		return err
+	}
+
+	// Print the message
+	if nick != c.nick {
+		printMessage(fmt.Sprintf("%s: %s", nick, msg))
+	}
+
+	return nil
 }
 
 func (c *Client) disconnect() {
@@ -294,7 +319,7 @@ func (h *ConnectionHandler) handle() {
 	fmt.Println("Starting connection handler...")
 	go h.tcpReceiverLoop()
 	go h.udpReceiverLoop()
-	// go h.multicastReceiverLoop()
+	go h.multicastReceiverLoop()
 	h.senderLoop()
 }
 
@@ -307,17 +332,29 @@ func (h *ConnectionHandler) handleExit(string) error {
 
 func (h *ConnectionHandler) handleSendUDP(string) error {
 	fmt.Println("Sending UDP...")
-	return h.client.sendUnicast(UDP, UDP_UNICAST_ART)
+	err := h.client.sendUnicast(UDP, UDP_UNICAST_ART)
+	if err != nil {
+		return fmt.Errorf("Error sending UDP: %s", err)
+	}
+	return nil
 }
 
 func (h *ConnectionHandler) handleSendMulticast(string) error {
 	fmt.Println("Sending multicast...")
-	return h.client.sendMulticast(UDP_MULTICAST_ART)
+	err := h.client.sendMulticast(UDP_MULTICAST_ART)
+	if err != nil {
+		return fmt.Errorf("Error sending multicast: %s", err)
+	}
+	return nil
 }
 
 func (h *ConnectionHandler) handleSendTCP(msg string) error {
 	fmt.Println("Sending TCP...")
-	return h.client.sendUnicast(TCP, msg)
+	err := h.client.sendUnicast(TCP, msg)
+	if err != nil {
+		return fmt.Errorf("Error sending TCP: %s", err)
+	}
+	return nil
 }
 
 func (h *ConnectionHandler) catchReceiveError(err error) {
@@ -333,20 +370,23 @@ func (h *ConnectionHandler) catchReceiveError(err error) {
 	}
 }
 
-func receiveMessage(conn net.Conn) error {
+func receiveMessage(conn net.Conn) (string, error) {
 	if conn == nil { // Return if connection was closed
-		return nil
+		return "", nil
 	}
 
 	buf := make([]byte, 1024)
 	n, err := conn.Read(buf)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	fmt.Printf("\b\b\b\b%v\n", string(buf[:n]))
+	return string(buf[:n]), nil
+}
+
+func printMessage(msg string) {
+	fmt.Printf("\b\b\b\b%v\n", msg)
 	fmt.Print(">>> ")
-	return nil
 }
 
 

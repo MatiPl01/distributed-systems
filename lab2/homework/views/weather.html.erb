@@ -12,22 +12,26 @@
     <h2>Cities</h2>
     <p>Current weather and forecast for <%= @days %> days.</p>
     <p>Values aggregated from these cities:</p>
-    <p>
+    <ul>
       <% @cities.each do |city| %>
-        <%= city %>
+        <li><%= city %></li>
       <% end %>
-    </p>
+    </ul>
 
     <h2>Current</h2>
-    <p>Average temperature: <%= "%.1f&#8451;C" % [@avg_temp_now] %></p>
-    <p>Sensed average temperature: <%= "%.1f&#8451;C" % [@avg_feelslike_now] %></p>
+    <p>Average temperature: <%= "%.1f&#8451;" % [@avg_temp_now] %></p>
+    <p>Sensed average temperature: <%= "%.1f&#8451;" % [@avg_feelslike_now] %></p>
 
     <h2>Forecast</h2>
-    <% @forecast.each do |day| %>
-      <h3><%= day['date'] %></h3>
-      <p>Minimum temperature: <%= "%.1f&#8451;C" % [day['min']] %></p>
-      <p>Maximum temperature: <%= "%.1f&#8451;C" % [day['max']] %></p>
-      <p>Average temperature: <%= "%.1f&#8451;C" % [day['avg']] %></p>
-    <% end %>
+    <ul>
+      <% @forecast.each do |day| %>
+        <li>
+          <h3><%= day[:date] %></h3>
+          <p>Minimum temperature: <%= "%.1f&#8451;" % [day[:min]] %></p>
+          <p>Maximum temperature: <%= "%.1f&#8451;" % [day[:max]] %></p>
+          <p>Average temperature: <%= "%.1f&#8451;" % [day[:avg]] %></p>
+        </li>
+      <% end %>
+    <ul>
   </body>
 </html>

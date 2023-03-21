@@ -1,9 +1,11 @@
+require './utils/renderer'
+
 module Controllers
 module Home
 
   class Index
     def call(env)
-      [200, { 'content-type' => 'text/html' }, [File.read('./views/form.html.erb')]]
+      Utils::Renderer.render_erb('./views/input.html.erb')
     end
   end
 

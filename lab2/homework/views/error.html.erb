@@ -1,14 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WeatherApp | Error</title>
+
+  <style>
+     * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-family: "Rubik", sans-serif;
+    }
+    
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-image: url(https://i.ibb.co/Zdv0N4m/background.jpg);
+      background-size: cover;
+      color: #fff;
+    }
+
+    /*
+     * Error
+     */
+    .error {
+      background-color: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(1rem);
+      box-shadow: 0 0 2rem rgba(0, 0, 0, 0.5);
+      text-shadow: 0 0 2rem rgba(0, 0, 0, 0.5);
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      gap: 2rem;
+    }
+
+    .error__heading {
+      font-size: 3rem;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .error__status {
+      font-size: 25rem;
+      font-weight: 600;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      mix-blend-mode: difference;
+      opacity: .1;
+      pointer-events: none;
+    }
+
+    .error__message {
+      font-size: 1.5rem;
+      font-weight: 500;
+      padding: 1rem 0;
+    }
+
+    .error__back {
+      font-size: 1.5rem;
+      color: #fff;
+      font-weight: 600;
+      text-shadow: 0 0 .5rem rgba(0, 0, 0, 0.5);
+    }
+  </style>
 </head>
 <body>
-    <h1>Request was not succesful</h1>
-    <p><%= @status_code %>: <%= @error %></p>
-    <a href="/">Go back to the form page</a>
+  <article class="error">
+    <h1 class="error__heading">Request was not succesful</h1>
+    <p class="error__body">
+      <span class="error__status">
+        <%= @status_code %>
+      </span>
+      <span class="error__message">
+        <%= @error %>
+      </span>
+    </p>
+    <a class="error__back" href="/">&larr; Back to the form</a>
+  </article>
 </body>
 </html>

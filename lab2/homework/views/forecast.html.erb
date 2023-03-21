@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WeatherApp | Forecast</title>
+
+    <style>
+      :root {
+        font-size: 80%;
+      }
+    
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        font-family: "Rubik", sans-serif;
+      }
+
+      body {
+        height: 100vh;
+        display: grid;
+        grid-template-areas:
+          "forecast details"
+          "weather details";
+        grid-template-rows: 2fr 1fr;
+        grid-template-columns: 2fr auto;
+
+        background-image: url(https://i.ibb.co/Zdv0N4m/background.jpg);
+        background-size: cover;
+        color: #fff;
+      }
+
+      /*
+       * Weather
+       */
+      .weather {
+        grid-area: weather;
+        align-self: end;
+        padding: 3rem;
+        text-shadow: 0 0 2rem rgba(0, 0, 0, 0.5);
+      }
+
+      .weather__container {
+        display: flex;
+        gap: 2.5rem;
+        align-items: center;
+      }
+
+      .weather__temperature {
+        font-size: 8rem;
+      }
+
+      .weather__temperature::after {
+        content: "°";
+        margin-left: -1.5rem;
+      }
+
+      .weather__location {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .weather__location--city {
+        font-size: 3rem;
+        font-weight: 500;
+      }
+
+      .weather__location--date {
+        font-size: 1.5rem;
+        font-weight: 400;
+      }
+
+      .weather__condition {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .weather__condition--icon {
+        width: 5rem;
+        height: 5rem;
+      }
+
+      .weather__condition--text {
+        font-size: 1.5rem;
+        whitespace: wrap;
+        font-weight: 500;
+      }
+
+      /*
+       * Details
+       */
+      .details {
+        grid-area: details;
+        padding: 2rem;
+        background-color: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(1rem);
+        box-shadow: 0 0 2rem rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 3rem;
+        gap: 3rem;
+      }
+
+      .details__back {
+        font-size: 1.5rem;
+        color: #fff;
+        font-weight: 600;
+        text-shadow: 0 0 .5rem rgba(0, 0, 0, 0.5);
+      }
+
+      .details-cities,
+      .details-weather__wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+      }
+
+      .details-cities__heading,
+      .details-weather__heading {
+        font-size: 2.5rem;
+        font-weight: 600;
+        text-shadow: 0 0 .5rem rgba(0, 0, 0, 0.5);
+      }
+
+      .details-cities__list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        overflow-y: scroll;
+        gap: 1.25rem;
+      }
+
+      .details-cities__list-item,
+      .details-weather__list-item {
+        font-size: 1.5rem;
+        text-shadow: 0 0 .5rem rgba(0, 0, 0, 0.5);
+      }
+
+      .details-weather {
+        display: flex;
+        align-items: flex-end;
+        width: 100%;
+        flex-grow: 1;
+      }
+
+      .details-weather__wrapper {
+        width: 100%;
+      }
+
+      .details-weather__list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+      }
+
+      .details-weather__list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /*
+       * Forecast
+       */
+      .forecast {
+        grid-area: forecast;
+        padding: 3rem;
+      }
+
+      .forecast__wrapper {
+        background-color: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(1rem);
+        box-shadow: 0 0 2rem rgba(0, 0, 0, 0.5);
+        padding: 3rem;
+      }
+
+      .forecast__heading {
+        font-size: 2.5rem;
+        font-weight: 600;
+        text-shadow: 0 0 .5rem rgba(0, 0, 0, 0.5);
+        margin-bottom: 1.25rem;
+      }
+
+      .forecast__list {
+        list-style: none;
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+      }
+
+      .forecast-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.25rem;
+        padding: 1.25rem;
+      }
+
+      .forecast-item__date {
+        font-size: 1.75rem;
+        font-weight: 600;
+        text-shadow: 0 0 .5rem rgba(0, 0, 0, 0.5);
+      }
+
+      .forecast-item__condition {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: .5rem;
+      }
+
+      .forecast-item__condition-icon {
+        width: 5rem;
+        height: 5rem;
+      }
+
+      .forecast-item__condition-text {
+        font-weight: 500;
+        text-shadow: 0 0 .5rem rgba(0, 0, 0, 0.5);
+      }
+
+      .forecast-item__temperatures {
+        display: grid;
+        grid-template-areas: "min max"
+                            "avg avg";
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 2fr;
+        grid-column-gap: .75rem;
+        grid-row-gap: .5rem;
+      }
+
+      .forecast-item__temperature {
+        font-size: 1rem;
+        font-weight: 600;
+        text-shadow: 0 0 .5rem rgba(0, 0, 0, 0.5);
+      }
+
+      .forecast-item__temperature::after {
+        content: "°C";
+      }
+
+      .forecast-item__temperature--min {
+        grid-area: min;
+        text-align: left;
+      }
+
+      .forecast-item__temperature--max {
+        grid-area: max;
+        text-align: right;
+      }
+
+      .forecast-item__temperature--avg {
+        grid-area: avg;
+        text-align: center;
+        font-size: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="weather">
+      <article class="weather__container">
+        <h2 class="weather__temperature">
+          <%= "%.1f" % [@avg_temp_now] %>
+      </h2>
+      <section class="weather__location">
+        <h3 class="weather__location--city">
+          <%= @cities[0] %>
+        </h3>
+        <h4 class="weather__location--date">
+          <%= @current_weather_date %>
+        </h4>
+      </section>
+      <section class="weather__condition">
+        <img class="weather__condition--icon" 
+            src="<%= @current_weather_condition['icon'] %>" 
+            alt="<%= @current_weather_condition['text'] %>" />
+        <h3 class="weather__condition--text">
+          <%= @current_weather_condition['text'] %>
+        </h3>
+      </section>
+      </article>
+    </section>
+
+    <article class="forecast">
+      <div class="forecast__wrapper">
+        <h2 class="forecast__heading">Forecast</h2>
+        <ul class="forecast__list">
+          <% @forecast.each do |day| %>
+            <li class="forecast-item">
+              <header class="forecast-item__header">
+                <h4 class="forecast-item__date">
+                  <%= day[:day] %>
+                </h4>
+              </header>
+              <section class="forecast-item__condition">
+                <img class="forecast-item__condition-icon" 
+                    src="<%= day[:condition]['icon'] %>" 
+                    alt="<%= day[:condition]['text'] %>" />
+                <h5 class="forecast-item__condition-text">
+                  <%= day[:condition]['text'] %>
+                </h5>
+              </section>
+              <footer class="forecast-item__temperatures">
+                <h3 class="forecast-item__temperature forecast-item__temperature--avg">
+                  <%= "%.1f" % [day[:avg]] %>
+                </h3>
+                <h4 class=forecast-item__temperature forecast-item__temperature--max">
+                  <%= "%.1f" % [day[:max]] %>
+                </h4>
+                <h4 class="forecast-item__temperature forecast-item__temperature--min">
+                  <%= "%.1f" % [day[:min]] %>
+                </h4>
+              </footer>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </article>
+
+    <aside class="details">
+      <a class="details__back" href="/">&larr; Back to the form</a>
+      <section class="details-cities">
+        <h2 class="details-cities__heading">Cities</h2>
+        <ul class="details-cities__list">
+          <% @cities.each do |city| %>
+            <li class="details-cities__list-item">
+              <%= city %>
+            </li>
+          <% end %>
+        </ul>
+      </section>
+      <section class="details-weather">
+        <div class="details-weather__wrapper">
+          <h2 class="details-weather__heading">Current Weather Details</h2>
+          <ul class="details-weather__list">
+            <li class="details-weather__list-item">
+              <span class="details-weather__text">Temperature feels like</span>
+              <span class="details-weather__value">
+                <%= "%.2f" % [@avg_feels_like_now] %>
+                <span class="details-weather__unit">°C</span>
+              </span>
+            </li>
+            <li class="details-weather__list-item">
+              <span class="details-weather__text">Wind speed</span>
+              <span class="details-weather__value">
+                <%= "%.2f" % [@avg_wind_kph_now] %>
+                <span class="details-weather__unit">km/h</span>
+              </span>
+            </li>
+            <li class="details-weather__list-item">
+              <span class="details-weather__text">Total perciption</span>
+              <span class="details-weather__value">
+                <%= "%.2f" % [@avg_totalprecip_mm_now] %>
+                <span class="details-weather__unit">mmHg</span>
+              </span>
+            </li>
+            <li class="details-weather__list-item">
+              <span class="details-weather__text">Humidity</span>
+              <span class="details-weather__value">
+                <%= "%.2f" % [@avg_avghumidity_now] %>
+                <span class="details-weather__unit">%</span>
+              </span>
+            </li>
+            <li class="details-weather__list-item">
+              <span class="details-weather__text">Wind speed</span>
+              <span class="details-weather__value">
+                <%= "%.2f" % [@avg_cloud_now] %>
+                <span class="details-weather__unit">%</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </section>
+    </aside>
+  </body>
+</html>

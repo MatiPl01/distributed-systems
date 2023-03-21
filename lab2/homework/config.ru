@@ -6,7 +6,9 @@ require 'json'
 require 'erb'
 
 require './controllers/home/index'
-require './controllers/weather/index'
+require './controllers/forecast/index'
+require './utils/renderer'
+
 class Middleware
   def initialize(app)
     @app = app
@@ -29,21 +31,16 @@ class Middleware
         @error = error['message'] if error['message']
       end
 
-      [@status_code, { 'content-type' => 'text/html' }, [ERB.new(File.read('./views/error.html.erb')).result(binding)]]
+      Utils::Renderer.render_erb('./views/error.html.erb', { status_code: @status_code, error: @error })
     end
   end
 end
 
 app = Hanami::Router.new do
   get '/', to: Controllers::Home::Index
-  get '/weather', to: Controllers::Weather::Index
+  get '/weather', to: Controllers::Forecast::Index
 end
 
 use Middleware
 
 run app
-
-# TODO - send key in headers
-# TODO - add scss and improve api
-# TODO - extract renderind to a helper function
-# TODO - add better authorization

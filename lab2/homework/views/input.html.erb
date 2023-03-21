@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/styles/css/styles.css">
+    <title>WeatherApp | Form</title>
+
+    <style>
+       * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        font-family: "Rubik", sans-serif;
+      }
+
+      body {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-image: url(https://i.ibb.co/Zdv0N4m/background.jpg);
+        background-size: cover;
+        color: #fff;
+      }
+
+      /*
+       * Form
+       */
+      .form {
+        background-color: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(1rem);
+        box-shadow: 0 0 2rem rgba(0, 0, 0, 0.5);
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        gap: .75rem;
+      }
+
+      .form__group {
+        display: flex;
+        gap: .5rem;
+        align-items: center;
+      }
+
+      .form__label {
+        font-size: 1.15rem;
+        font-weight: 500;
+        width: 9rem;
+        display: block;
+      }
+
+      .form__input {
+        padding: .75rem .5rem;
+        font-size: 1rem;
+        width: 15rem;
+        border: none;
+        border-radius: 0.5rem;
+        background-color: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(1rem);
+        box-shadow: 0 0 2rem rgba(0, 0, 0, 0.5);
+        color: #fff;
+      }
+
+      .form__submit {
+        padding: .75rem 1.5rem;
+        font-size: 1.15rem;
+        font-weight: 500;
+        border: none;
+        border-radius: 0.5rem;
+        background-color: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(1rem);
+        box-shadow: 0 0 2rem rgba(0, 0, 0, 0.5);
+        color: #fff;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        margin-top: 1rem;
+      }
+    </style>
+</head>
+<body>
+    <form class="form" action="/weather" method="get">
+      <div class="form__group">
+        <label class="form__label" for="city">City:</label>
+        <input class="form__input" type="text" name="city" id="city">
+      </div>
+      <div class="form__group">
+        <label class="form__label" for="radius">Radius (in km):</label>
+        <input class="form__input" type="text" name="radius" id="radius">
+      </div>
+      <div class="form__group">
+        <label class="form__label" for="days">Days: </label>
+        <input class="form__input" type="text" name="days" id="days">
+      </div>
+      <div class="form__group">
+        <label class="form__label" for="key">Auth key: </label>
+        <input class="form__input" type="text" name="key" id="key">
+      </div>
+      <button class="form__submit" type="submit">Submit</button>
+    </form>
+</body>
+</html>

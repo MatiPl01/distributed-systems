@@ -23,7 +23,7 @@ class Middleware
       error = e.message
       error = JSON.parse(error) if error.is_a?(String) and error.start_with?('{')
 
-      @status_code =  500
+      @status_code = 500
       @error =  'Something went wrong'
 
       if error.is_a?(Hash)

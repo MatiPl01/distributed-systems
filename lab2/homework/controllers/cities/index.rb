@@ -19,10 +19,6 @@ module Cities
       raise StandardError.new({ status_code: 502, message: body['message'] }.to_json)
     end
 
-    if body.key?('message')
-      raise StandardError.new({ status_code: 502, message: body['message'] }.to_json)
-    end
-
     if body.nil? or body.empty?
       raise StandardError.new({ status_code: 404, message: 'No cities found' }.to_json)
     end

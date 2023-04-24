@@ -25,7 +25,7 @@ import ray
 import random
 import numpy as np
 
-ray.init(address='auto')
+context = ray.init(address='auto', ignore_reinit_error=True, logging_level=logging.ERROR)
 
 # if ray.is_initialized:
 #     ray.shutdown()
@@ -270,7 +270,7 @@ while True :
     print(states)
     # check if all are DONE
     result=all('DONE'==e for e in states)
-    if result :
+    if result:
         # Note: Actor processes will be terminated automatically when the initial actor handle goes out of scope in Python.
         # If we create an actor with actor_handle = ActorClass.remote(), then when actor_handle goes out of scope and is destroyed,
         # the actor process will be terminated. Note that this only applies to the original actor handle created for the actor

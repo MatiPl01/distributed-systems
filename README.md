@@ -15,8 +15,7 @@
 ## Lab 3: Ray
 
 - [Examples](./lab3/examples)
-- [Exercises](./lab3/exercises)
-- [Homework](./lab3/homework)
+- [Exercises](./lab3/exercises) (exercises & homework)
 
 ## Lab 4: Middleware (part 1)
 

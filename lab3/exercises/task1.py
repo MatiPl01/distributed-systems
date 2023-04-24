@@ -3,9 +3,11 @@
 import os
 import ray
 import random
+import logging
 import cProfile
 from copy import copy
 
+ray.init(address="auto")
 
 def create_array(size):
     return random.sample(range(size), size)
@@ -38,7 +40,7 @@ def run_remote_bubble_sort(arr, repeat_count):
 if __name__ == '__main__':
     random.seed(0)
 
-    array_size = 10000
+    array_size = 100
     repeat_count = os.cpu_count()
     array = create_array(array_size)
 

@@ -2,54 +2,44 @@ version: "3"
 
 services:
   ray-head:
-    platform: linux/amd64
-    image: rayproject/ray:latest
-    container_name: ray-head
+    image: ${RAY_IMAGE}
+    ports:
+      - "${REDISPORT}:${REDISPORT}"
+      - "${DASHBOARDPORT}:${DASHBOARDPORT}"
+      - "${HEADNODEPORT}:${HEADNODEPORT}"
     env_file:
       - .env
-    ports:
-      - "${DASHBOARD_PORT}:${DASHBOARD_PORT}"
-      - "${RAY_HEAD_PORT}:${RAY_HEAD_PORT}"
-    command: ray start --head --port=${RAY_HEAD_PORT} --dashboard-port=${DASHBOARD_PORT} --dashboard-host=0.0.0.0 --block
-    shm_size: 2G
+    command: bash -c "ray start --head --dashboard-port=${DASHBOARDPORT} --port=${REDISPORT} --dashboard-host=0.0.0.0 --redis-password=${REDISPASSWORD} --block"
+    shm_size: 2g
     deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
       resources:
         limits:
           cpus: '1'
-          memory: 2G
-    volumes:
-      - /tmp/ray:/tmp/ray
+          memory: '2g'
     networks:
-      - raynet
+      - ray_net
 
   ray-worker:
-    platform: linux/amd64
-    image: rayproject/ray:latest
-    depends_on:
+    image: ${RAY_IMAGE}
+    depends_on: 
       - ray-head
     env_file:
       - .env
-    command: ray start --address=ray-head:${RAY_HEAD_PORT} --num-cpus=${WORKER_CPUS_COUNT} --block
-    shm_size: 2G
+    command: bash -c "ray start --address=ray-head:${REDISPORT} --redis-password=${REDISPASSWORD} --num-cpus=${NUM_CPU_WORKER} --block" 
+    shm_size: 2g
     deploy:
-      replicas: ${WORKERS_COUNT}
-      restart_policy:
-        condition: on-failure
+      mode: replicated
+      replicas: ${NUM_WORKERS} 
       resources:
         limits:
-          cpus: ${WORKER_CPUS_COUNT}
-          memory: 2G
-    volumes:
-      - /tmp/ray:/tmp/ray
+          cpus: ${NUM_CPU_WORKER}
+          memory: '2g'
     networks:
-      - raynet
-
+      - ray_net
+  
 networks:
-  raynet:
+  ray_net:
     ipam:
       driver: default
       config:
-        - subnet: 172.0.0.1/16
+        - subnet: 172.63.0.0/16

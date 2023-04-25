@@ -40,7 +40,7 @@ def run_remote_bubble_sort(arr, repeat_count):
 if __name__ == '__main__':
     random.seed(0)
 
-    array_size = 100
+    array_size = 10000
     repeat_count = os.cpu_count()
     array = create_array(array_size)
 

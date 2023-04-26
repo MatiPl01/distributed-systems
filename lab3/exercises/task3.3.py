@@ -4,16 +4,13 @@
 # Implement calculating pi as a combination of actor (which keeps the
 # state of the progress of calculating pi as it approaches its final value)
 # and a task (which computes candidates for pi)
-import time
-
 import ray
 import math
+import time
 import random
 import logging
 
-if ray.is_initialized:
-    ray.shutdown()
-ray.init(logging_level=logging.ERROR)
+ray.init(address='auto', logging_level=logging.ERROR)
 
 
 @ray.remote

@@ -7,7 +7,8 @@ import logging
 import cProfile
 from copy import copy
 
-ray.init(address="auto")
+ray.init(address='auto', logging_level=logging.ERROR)
+
 
 def create_array(size):
     return random.sample(range(size), size)

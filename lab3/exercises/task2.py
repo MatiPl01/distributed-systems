@@ -4,9 +4,7 @@ import logging
 import random
 import ray
 
-if ray.is_initialized:
-    ray.shutdown()
-ray.init(logging_level=logging.ERROR)
+ray.init(address='auto', logging_level=logging.ERROR)
 
 
 def create_employees_dict(count):

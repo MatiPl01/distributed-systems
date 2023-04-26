@@ -8,9 +8,7 @@ import time
 import random
 import logging
 
-if ray.is_initialized:
-    ray.shutdown()
-ray.init(logging_level=logging.ERROR)
+ray.init(address='auto', logging_level=logging.ERROR)
 
 CALLERS = ['A', 'B', 'C']
 

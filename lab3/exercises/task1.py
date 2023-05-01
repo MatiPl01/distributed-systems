@@ -1,5 +1,5 @@
 # Exercises 1.1) Try using local bubble sort and remote bubble sort,
-# show difference
+# show the difference
 import os
 import ray
 import random
@@ -7,7 +7,20 @@ import logging
 import cProfile
 from copy import copy
 
+"""
+# 1. Local development
+if ray.is_initialized():
+    ray.shutdown()
+ray.init(logging_level=logging.ERROR)
+"""
+
+"""
+# 2. Inside Docker Cluster
 ray.init(address='auto', logging_level=logging.ERROR)
+"""
+
+# 3. Local development with Docker Cluster
+ray.init(address='ray://localhost:10001', logging_level=logging.ERROR)
 
 
 def create_array(size):
@@ -39,6 +52,7 @@ def run_remote_bubble_sort(arr, repeat_count):
 
 
 if __name__ == '__main__':
+    print("Task 1 started")
     random.seed(0)
 
     array_size = 10000

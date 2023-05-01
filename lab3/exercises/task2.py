@@ -4,7 +4,20 @@ import logging
 import random
 import ray
 
+"""
+# 1. Local development
+if ray.is_initialized():
+    ray.shutdown()
+ray.init(logging_level=logging.ERROR)
+"""
+
+"""
+# 2. Inside Docker Cluster
 ray.init(address='auto', logging_level=logging.ERROR)
+"""
+
+# 3. Local development with Docker Cluster
+ray.init(address='ray://localhost:10001', logging_level=logging.ERROR)
 
 
 def create_employees_dict(count):
@@ -91,6 +104,7 @@ def get_most_cost_effective_employee(cost_per_hour):
 
 
 if __name__ == '__main__':
+    print("Task 2 started")
     random.seed(42)
 
     employees = create_employees_dict(100_000)

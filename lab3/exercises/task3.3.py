@@ -1,4 +1,4 @@
-# 3.3 Take a look on implement parralel Pi computation
+# 3.3 Take a look on implement parallel Pi computation
 # based on https://docs.ray.io/en/master/ray-core/examples/highly_parallel.html
 #
 # Implement calculating pi as a combination of actor (which keeps the
@@ -10,7 +10,20 @@ import time
 import random
 import logging
 
+"""
+# 1. Local development
+if ray.is_initialized():
+    ray.shutdown()
+ray.init(logging_level=logging.ERROR)
+"""
+
+"""
+# 2. Inside Docker Cluster
 ray.init(address='auto', logging_level=logging.ERROR)
+"""
+
+# 3. Local development with Docker Cluster
+ray.init(address='ray://localhost:10001', logging_level=logging.ERROR)
 
 
 @ray.remote
@@ -52,6 +65,7 @@ class PiEstimator:
 
 
 if __name__ == '__main__':
+    print("Task 3.3 started")
     random.seed(42)
 
     SAMPLE_COUNT = 1_000_000

@@ -8,7 +8,20 @@ import time
 import random
 import logging
 
+"""
+# 1. Local development
+if ray.is_initialized():
+    ray.shutdown()
+ray.init(logging_level=logging.ERROR)
+"""
+
+"""
+# 2. Inside Docker Cluster
 ray.init(address='auto', logging_level=logging.ERROR)
+"""
+
+# 3. Local development with Docker Cluster
+ray.init(address='ray://localhost:10001', logging_level=logging.ERROR)
 
 CALLERS = ['A', 'B', 'C']
 
@@ -41,6 +54,7 @@ class MethodStateCounter:
 
 
 if __name__ == '__main__':
+    print("Task 3.1-2 started")
     # Create an instance of our Actor
     worker_invoker = MethodStateCounter.remote()
 

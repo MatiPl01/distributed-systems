@@ -19,8 +19,9 @@
 
 ## Lab 4: Middleware (part 1)
 
-- ~~[Exercises](./lab4/)~~ (to be done)
+- ~~[Exercises](./lab4/exercises)~~ (to be done)
 
 ## Lab 5: Middleware (part 2)
 
-- ~~[Exercises](./lab5/)~~ (to be done)
+- ~~[Exercises](./lab5/exercises)~~ (to be done)
+- [Homework](./lab5/homework) (⚙️ in progress...)

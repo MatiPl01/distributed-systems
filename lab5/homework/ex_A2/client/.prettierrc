@@ -1,0 +1,9 @@
+{
+  "singleQuote": true,
+  "trailingComma": "none",
+  "bracketSameLine": true,
+  "arrowParens": "avoid",
+  "importOrder": ["^@\\w+/(.*)$", "^@/\\w+/(.*)$", "^[./]"],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true
+}

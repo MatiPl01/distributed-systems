@@ -1,6 +1,5 @@
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
-using static System.TimeSpan;
 
 namespace server.Services;
 
@@ -48,6 +47,7 @@ public class AirPollutionNotifierService : AirPollutionNotifier.AirPollutionNoti
         
         while (!context.CancellationToken.IsCancellationRequested)
         {
+            _logger.LogInformation("Checking air pollution measurements for cities: {Cities}", string.Join(", ", cities));
             var measurements = await GetCurrentAirPollutionMeasurements(cities);
             await responseStream.WriteAsync(CreateNotification(measurements));
             await Task.Delay(FromSeconds(request.Interval));
@@ -73,6 +73,7 @@ public class AirPollutionNotifierService : AirPollutionNotifier.AirPollutionNoti
         
         while (!context.CancellationToken.IsCancellationRequested)
         {
+            _logger.LogInformation("Checking air pollution measurements for cities: {Cities}", string.Join(", ", cities));
             var measurements = await GetCurrentAirPollutionMeasurements(cities);
             var filteredMeasurements = GetMeasurementsMatchingCriteria(measurements, criteria);
             if (filteredMeasurements.Any())
@@ -113,13 +114,13 @@ public class AirPollutionNotifierService : AirPollutionNotifier.AirPollutionNoti
         isValid &= ValidateCriteriaValue(criteria.MinPm10, "MinPm10", context, 0, 1200);
         isValid &= ValidateCriteriaValue(criteria.MaxPm10, "MaxPm10", context, 0, 1200);
         
-        if (criteria.HasMinPm25 && criteria.HasMaxPm25 && criteria.MinPm25 > criteria.MaxPm25)
+        if (criteria is { HasMinPm25: true, HasMaxPm25: true } && criteria.MinPm25 > criteria.MaxPm25)
         {
             context.Status = new Status(StatusCode.InvalidArgument, $"MinPm25 {criteria.MinPm25} should be less than MaxPm25 {criteria.MaxPm25}");
             isValid = false;
         }
         
-        if (criteria.HasMinPm10 && criteria.HasMaxPm10 && criteria.MinPm10 > criteria.MaxPm10)
+        if (criteria is { HasMinPm10: true, HasMaxPm10: true } && criteria.MinPm10 > criteria.MaxPm10)
         {
             context.Status = new Status(StatusCode.InvalidArgument, $"MinPm10 {criteria.MinPm10} should be less than MaxPm10 {criteria.MaxPm10}");
             isValid = false;

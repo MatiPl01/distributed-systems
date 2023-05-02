@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-option csharp_namespace = "server";
-
 package air_pollution;
 
 import "google/protobuf/timestamp.proto";

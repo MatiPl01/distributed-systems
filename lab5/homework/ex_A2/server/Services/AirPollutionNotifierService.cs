@@ -20,7 +20,7 @@ public class AirPollutionNotifierService : AirPollutionNotifier.AirPollutionNoti
         "Lublin"
     };
 
-    private static readonly int AirPollutionCheckInterval = 1000;
+    private const int AirPollutionCheckInterval = 5000;
 
     public AirPollutionNotifierService(ILogger<AirPollutionNotifierService> logger)
     {
@@ -50,7 +50,7 @@ public class AirPollutionNotifierService : AirPollutionNotifier.AirPollutionNoti
             _logger.LogInformation("Checking air pollution measurements for cities: {Cities}", string.Join(", ", cities));
             var measurements = await GetCurrentAirPollutionMeasurements(cities);
             await responseStream.WriteAsync(CreateNotification(measurements));
-            await Task.Delay(FromSeconds(request.Interval));
+            await Task.Delay(FromMilliseconds(request.Interval));
         }
     }
 
@@ -82,7 +82,7 @@ public class AirPollutionNotifierService : AirPollutionNotifier.AirPollutionNoti
             }
             
             // Add some delay between checks
-            await Task.Delay(FromSeconds(AirPollutionCheckInterval));
+            await Task.Delay(FromMilliseconds(AirPollutionCheckInterval));
         }
     }
 
@@ -142,7 +142,7 @@ public class AirPollutionNotifierService : AirPollutionNotifier.AirPollutionNoti
     {
         context.CancellationToken.Register(() =>
         {
-            _logger.LogInformation("Connection with {ContextPeer} was lost", context.Peer);
+            _logger.LogInformation("Connection with {ContextPeer} was cancelled", context.Peer);
         });
     }
 

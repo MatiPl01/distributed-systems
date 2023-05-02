@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import * as readline from 'readline';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -6,6 +7,7 @@ import * as grpc from '@grpc/grpc-js';
 import { INPUT_CONFIG } from '../config/index.js';
 import Logger from '../utils/Logger.js';
 import InputParser from '../utils/inputParser.js';
+import { protoTimestampToJsDate } from '../utils/protoUtils.js';
 
 export default class Client {
   constructor(proto) {
@@ -97,7 +99,8 @@ export default class Client {
 
   handleSubscribeResponse(id, response) {
     response.on('data', data => {
-      Logger.log(data); // TODO - format response data
+      Logger.info(`Subscription with id ${id} received data.`);
+      this.printNotification(data);
     });
     response.on('end', () => {
       Logger.info(`Subscription with id ${id} has been closed.`);
@@ -106,12 +109,20 @@ export default class Client {
       Logger.error(error);
     });
   }
+
+  printNotification(notification) {
+    const notificationDate = protoTimestampToJsDate(notification.timestamp);
+
+    console.log(
+      `[${format(
+        notificationDate,
+        'yyyy-MM-dd HH:mm:ss'
+      )}] Notification: \n${notification.measurements
+        .map(
+          ({ city, pm_2_5, pm_10 }) =>
+            ` - ${city}: PM 2.5: ${pm_2_5.value} (${pm_2_5.level}), PM 10: ${pm_10.value} (${pm_10.level})`
+        )
+        .join('\n')}`
+    );
+  }
 }
-
-`
-subscribe scheduled --interval=1000 --cities=Kraków
-subscribe conditional --min_pm_2_5=10 --max_pm_2_5=300 --min_pm_10=10 --max_pm_10=200 --cities=Kraków,Warszawa,Białystok
-subscribe conditional --min_pm_2_5=10 --max_pm_2_5=100 --cities=Kraków,Warszawa
-
-unsubscribe 3d9b8d87-a97d-4204-8073-4c04aff72aa5
-`;

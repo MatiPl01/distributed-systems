@@ -10,5 +10,5 @@ export default {
   BgRed: '\x1b[41m',
 
   // Reset
-  Reset: '\x1b[0m',
-}
+  Reset: '\x1b[0m'
+};

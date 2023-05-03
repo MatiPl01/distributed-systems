@@ -1,0 +1,13 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    zeroc-ice (3.7.9)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  zeroc-ice (~> 3.7)
+
+BUNDLED WITH
+   2.1.4

@@ -25,3 +25,5 @@
 
 - ~~[Exercises](./lab5/exercises)~~ (to be done)
 - [Homework](./lab5/homework) (⚙️ in progress...)
+
+\* *I removed all `examples` and `exercises` directories from language statistics tracking because most of code in there is a boilerplate code and wasn't written by me*

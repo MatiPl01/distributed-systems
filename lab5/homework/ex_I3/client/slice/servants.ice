@@ -8,10 +8,10 @@ module Servants {
      *          to store frequently used objects. This behaviour prevents
      *          the creation of new servants for each connection on every
      *          request and makes it possible to reuse the same servant
-     *          multiple times for the same connection. Servants stores in ASM
+     *          multiple times for the same connection. Servants stored in ASM
      *          are usually used frequently and are rarely destroyed and have
      *          unique state for each connection.
-     *          The usage of the ASM also  makes a lot of sense when dealing
+     *          The usage of the ASM also makes a lot of sense when dealing
      *          with singletons.
      */
     interface ASMObject {
@@ -77,18 +77,10 @@ module Servants {
     interface SLObject {
         /**
          * @brief Sets the state of the servant
-         * @details This method is used to set the state of the servant.
+         * @details This method is used to save data in the servant.
          *
          * @param loadsOfData string data to be set (usually a lot of data)
          */
-        void setState(string loadsOfData);
-
-        /**
-         * @brief Gets the state of the servant
-         * @details This method is used to get the state of the servant.
-         *
-         * @return string state of the servant
-         */
-        string getState();
+        void saveData(string loadsOfData);
     };
 };

@@ -21,7 +21,7 @@ class ServantLocatorService: ServantLocator {
         return ServantLocator.LocateResult(slObject, null)
     }
 
-    override fun finished(curr: Current, servant: Object, cookie: Any) {}
+    override fun finished(curr: Current, servant: Object, cookie: Any?) {}
 
     override fun deactivate(category: String) {}
 }

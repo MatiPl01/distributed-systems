@@ -10,15 +10,9 @@ class SLObjectI(private val id: Int): Servants.SLObject {
         println("SLObjectI: Created servant with id $id")
     }
 
-    override fun setState(loadsOfData: String, current: Current) {
+    override fun saveData(loadsOfData: String, current: Current) {
         val obj = Util.identityToString(current.id)
-        println("SLObjectI: setState called on object $obj (servant id $id)")
+        println("SLObjectI: saveData called on object $obj (servant id $id)")
         this.loadsOfData = loadsOfData
-    }
-
-    override fun getState(current: Current): String {
-        val obj = Util.identityToString(current.id)
-        println("SLObjectI: getState called on object $obj (servant id $id)")
-        return loadsOfData
     }
 }

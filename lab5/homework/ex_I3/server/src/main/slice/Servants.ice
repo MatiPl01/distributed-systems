@@ -77,18 +77,10 @@ module Servants {
     interface SLObject {
         /**
          * @brief Sets the state of the servant
-         * @details This method is used to set the state of the servant.
+         * @details This method is used to save data in the servant.
          *
          * @param loadsOfData string data to be set (usually a lot of data)
          */
-        void setState(string loadsOfData);
-
-        /**
-         * @brief Gets the state of the servant
-         * @details This method is used to get the state of the servant.
-         *
-         * @return string state of the servant
-         */
-        string getState();
+        void saveData(string loadsOfData);
     };
 };

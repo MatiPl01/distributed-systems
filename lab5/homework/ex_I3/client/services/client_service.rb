@@ -26,7 +26,7 @@ module Services
         when 'DS'
           handleDS(*args.map(&:to_i))
         when 'SL'
-          handleSL(args.join(' '))
+          handleSL(args[0], args[1..-1].join(' '))
         when 'exit'
           break
         else
@@ -36,7 +36,7 @@ module Services
     end
 
     def handleASM
-      servant = Servants::ASMObjectPrx::checkedCast(create_base('ASM'))
+      servant = Servants::ASMObjectPrx::checkedCast(create_base("ASM"))
       raise Ice::NoEndpointException unless servant
       # Register the call
       puts "Registering call..."
@@ -45,19 +45,17 @@ module Services
       puts "Call count: #{servant.getCallCount}"
     end
 
-    def handleDS(a, b) # TODO - fix this ::Ice::ObjectNotExistException
-      servant = Servants::DSObjectPrx::checkedCast(create_base('DS'))
+    def handleDS(object_id, a, b)
+      servant = Servants::DSObjectPrx::checkedCast(create_base("DS/#{object_id}"))
       # Call the add method
       puts "Sum: #{servant.add(a, b)}"
     end
 
-    def handleSL(lotsOfData) # TODO - fix this ::Ice::ObjectNotExistException
-      servant = Servants::SLObjectPrx::checkedCast(create_base('SL'))
+    def handleSL(object_id, lotsOfData)
+      servant = Servants::SLObjectPrx::checkedCast(create_base("SL/#{object_id}"))
       # Set the state
-      puts "Setting state..."
-      servant.setState(lotsOfData)
-      # Get the state
-      puts "State: #{servant.getState}"
+      puts "Saving data..."
+      servant.saveData(lotsOfData)
     end
 
     private

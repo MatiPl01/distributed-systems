@@ -19,11 +19,11 @@
 
 ## Lab 4: Middleware (part 1)
 
-- ~~[Exercises](./lab4/exercises)~~ (to be done)
+- ~~[Exercises](./lab4/exercises)~~ (unfinished)
 
 ## Lab 5: Middleware (part 2)
 
-- ~~[Exercises](./lab5/exercises)~~ (to be done)
-- [Homework](./lab5/homework) (⚙️ in progress...)
+- ~~[Exercises](./lab5/exercises)~~ (unfinished)
+- [Homework](./lab5/homework)
 
 \* *I removed all `examples` and `exercises` directories from language statistics tracking because most of code in there is a boilerplate code and wasn't written by me*

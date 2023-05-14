@@ -36,9 +36,12 @@ const main = () => {
 main();
 
 /* Example usage:
-subscribe scheduled --interval=10000 --cities=Kraków
+subscribe scheduled --interval=1000 --cities=Kraków
+
 subscribe conditional --min_pm_2_5=10 --max_pm_2_5=300 --min_pm_10=10 --max_pm_10=200 --cities=Warszawa,Wrocław,Poznań,Gdańsk
+
 subscribe conditional --min_pm_2_5=10 --max_pm_2_5=300 --min_pm_10=10 --max_pm_10=200 --cities=Kraków,Warszawa,Białystok <-- error
+
 subscribe conditional --min_pm_2_5=10 --max_pm_2_5=100 --cities=Kraków,Warszawa
 
 unsubscribe <subscriptionId>

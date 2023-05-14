@@ -10,7 +10,7 @@ class DSObjectI(private val id: Int): Servants.DSObject {
 
     override fun add(a: Int, b: Int, current: Current): Int {
         val obj = Util.identityToString(current.id)
-        println("ASMObjectI: add called on object $obj (servant id $id)")
+        println("DSObjectI: add called on object $obj (servant id $id)")
         return a + b
     }
 }

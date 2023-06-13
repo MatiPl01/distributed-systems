@@ -1,0 +1,23 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    amq-protocol (2.3.2)
+    bunny (2.22.0)
+      amq-protocol (~> 2.3, >= 2.3.1)
+      sorted_set (~> 1, >= 1.0.2)
+    dotenv (2.8.1)
+    rbtree (0.4.6)
+    set (1.0.3)
+    sorted_set (1.0.3)
+      rbtree
+      set (~> 1.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bunny (~> 2.4)
+  dotenv (~> 2.8, >= 2.8.1)
+
+BUNDLED WITH
+   2.1.4

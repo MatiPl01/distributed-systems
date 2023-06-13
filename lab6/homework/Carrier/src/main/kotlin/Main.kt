@@ -13,7 +13,7 @@ fun main(args: Array<String>) {
     val carrierName = getCarrierName(args)
     val routingKeys = getRoutingKeys(args)
 
-    // Create exchanges
+    // EXCHANGES
     // Agency requests exchange
     channel.exchangeDeclare(
         Constants.AGENCY_REQUESTS_EXCHANGE_NAME,
@@ -24,27 +24,33 @@ fun main(args: Array<String>) {
         Constants.CARRIER_CONFIRMATIONS_EXCHANGE_NAME,
         "topic"
     )
+    // Admin carriers notifications exchange
+    channel.exchangeDeclare(
+        Constants.ADMIN_CARRIERS_NOTIFICATIONS_EXCHANGE_NAME,
+        "fanout"
+    )
 
+    // QUEUES
     // Declare a queue to receive requests from agencies
     val requestsQueueName = "${carrierName}_requests_queue"
-    channel.queueDeclare(
-        requestsQueueName,
-        false, // TODO - change to true
-        false,
-        false,
-        null
+    setupQueue(
+        channel = channel,
+        queueName = requestsQueueName,
+        exchangeName = Constants.AGENCY_REQUESTS_EXCHANGE_NAME,
+        routingKeys = routingKeys
     )
-    // Create respective bindings based on specified routing keys
-    routingKeys.forEach { routingKey ->
-        channel.queueBind(
-            requestsQueueName,
-            Constants.AGENCY_REQUESTS_EXCHANGE_NAME,
-            routingKey
-        )
-    }
+    // Declare a queue to receive admin notifications
+    val adminNotificationsQueueName = "${carrierName}_admin_notifications_queue"
+    setupQueue(
+        channel = channel,
+        queueName = adminNotificationsQueueName,
+        exchangeName = Constants.ADMIN_CARRIERS_NOTIFICATIONS_EXCHANGE_NAME,
+        routingKeys = listOf()
+    )
 
     println(" [*] Waiting for messages.")
 
+    // Create the agencies requests handler
     val requestsHandler = RequestsHandler(
         carrierName = carrierName,
         requestsQueueName = requestsQueueName,
@@ -53,4 +59,11 @@ fun main(args: Array<String>) {
         channel = channel
     )
     requestsHandler.handleRequests()
+
+    // Create the admin notifications handler
+    val adminNotificationsHandler = AdminNotificationsHandler(
+        queueName = adminNotificationsQueueName,
+        channel = channel
+    )
+    adminNotificationsHandler.handleNotifications()
 }

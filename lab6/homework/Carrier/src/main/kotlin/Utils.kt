@@ -25,3 +25,26 @@ fun getRoutingKeys(args: Array<String>): List<String> {
     }
     return routingKeys
 }
+
+fun setupQueue(
+    channel: Channel,
+    queueName: String,
+    exchangeName: String,
+    routingKeys: List<String>
+) {
+    channel.queueDeclare(
+        queueName,
+        false, // TODO - change to true
+        false,
+        false,
+        null
+    )
+    // Create respective bindings based on specified routing keys
+    routingKeys.forEach { routingKey ->
+        channel.queueBind(
+            queueName,
+            exchangeName,
+            routingKey
+        )
+    }
+}

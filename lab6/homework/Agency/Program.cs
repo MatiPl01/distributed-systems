@@ -12,7 +12,7 @@ using var channel = connection.CreateModel();
 // Get the agency name from the command line arguments
 var agencyName = Utils.GetAgencyName(args);
 
-// Create exchanges
+// EXCHANGES
 // Agency requests exchange
 channel.ExchangeDeclare(
     exchange: Constants.AgencyRequestsExchangeName, 
@@ -23,21 +23,29 @@ channel.ExchangeDeclare(
     exchange: Constants.CarrierConfirmationsExchangeName, 
     type: ExchangeType.Topic
 );
-
-// Declare a queue to receive confirmations from carriers
-var confirmationsQueueName = $"${agencyName}_confirmations_queue";
-channel.QueueDeclare(
-    queue: confirmationsQueueName,
-    durable: false, // TODO - change to true
-    exclusive: false,
-    autoDelete: false,
-    arguments: null
+// Admin agencies exchange
+channel.ExchangeDeclare(
+    exchange: Constants.AdminAgenciesNotificationsExchangeName, 
+    type: ExchangeType.Fanout
 );
-// Bind the the proper routing key (topic)
-channel.QueueBind(
-    queue: confirmationsQueueName,
-    exchange: Constants.CarrierConfirmationsExchangeName,
+
+// QUEUES
+// Setup queues
+// Confirmations queue
+var confirmationsQueueName = $"${agencyName}_confirmations_queue";
+Utils.SetupQueue(
+    channel, 
+    queueName: confirmationsQueueName, 
+    exchangeName: Constants.CarrierConfirmationsExchangeName, 
     routingKey: $"confirmation.{agencyName}"
+);
+// Admin notifications queue
+var adminNotificationsQueueName = $"${agencyName}_admin_notifications_queue";
+Utils.SetupQueue(
+    channel, 
+    queueName: adminNotificationsQueueName, 
+    exchangeName: Constants.AdminAgenciesNotificationsExchangeName, 
+    routingKey: "aaa"
 );
 
 // Create the requests confirmations handler
@@ -46,6 +54,13 @@ var confirmationsHandler = new ConfirmationsHandler(
     channel
 );
 confirmationsHandler.HandleConfirmations();
+
+// Create the admin notifications handler
+var adminNotificationsHandler = new AdminNotificationsHandler(
+    adminNotificationsQueueName, 
+    channel
+);
+adminNotificationsHandler.HandleNotifications();
 
 // Create the request manager
 var requestManager = new RequestManager(

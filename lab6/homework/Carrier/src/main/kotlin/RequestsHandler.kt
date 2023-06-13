@@ -45,6 +45,7 @@ class RequestsHandler(
             agencyName = agencyRequest.agencyName,
             internalId = agencyRequest.internalId,
             requestType = requestType,
+            type = "confirmation",
             carrierName = carrierName
         )
         // Encode confirmation object to JSON

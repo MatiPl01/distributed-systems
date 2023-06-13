@@ -8,16 +8,18 @@ public enum RequestType
 {
     PassengerTransport,
     CargoTransport,
-    EmergencyTransport
+    SatelliteLaunch,
 }
 
 public class RequestManager
 {
+    private readonly string _agencyName;
     private readonly IModel _channel;
     private readonly string _exchangeName;
 
-    public RequestManager(IModel channel, string exchangeName)
+    public RequestManager(string agencyName, string exchangeName, IModel channel)
     {
+        _agencyName = agencyName;
         _channel = channel;
         _exchangeName = exchangeName;
     }
@@ -29,7 +31,7 @@ public class RequestManager
         {
             RequestType.PassengerTransport => "passenger",
             RequestType.CargoTransport => "cargo",
-            RequestType.EmergencyTransport => "emergency",
+            RequestType.SatelliteLaunch => "satellite",
             _ => throw new ArgumentOutOfRangeException(nameof(requestType), requestType, null)
         };
         
@@ -38,11 +40,11 @@ public class RequestManager
         properties.Persistent = true;
         
         // Create the request
-        var request = new Request(requestType.ToString());
+        var request = new AgencyRequest(_agencyName);
         
         // Convert the message to JSON
-        var jsonOrder = JsonConvert.SerializeObject(request);
-        var body = Encoding.UTF8.GetBytes(jsonOrder);
+        var jsonRequest = Utils.SerializeJson(request);
+        var body = Encoding.UTF8.GetBytes(jsonRequest);
 
         // Publish the message
         _channel.BasicPublish(
@@ -52,6 +54,6 @@ public class RequestManager
             body: body
         );
         
-        Console.WriteLine($" [x] Sent {requestType} request");
+        Console.WriteLine($" [x] Sent {jsonRequest} to {routingKey}");
     }
 }

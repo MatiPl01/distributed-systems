@@ -1,46 +1,56 @@
 import com.rabbitmq.client.ConnectionFactory
-import com.rabbitmq.client.DeliverCallback
-import com.rabbitmq.client.Delivery
-
-
-const val QUEUE_NAME: String = "task_queue"
-
-fun doWork(task: String) {
-    for (ch in task.toCharArray()) {
-        if (ch == '.') {
-            try {
-                Thread.sleep(1000)
-            } catch (_ignored: InterruptedException) {
-                Thread.currentThread().interrupt()
-            }
-        }
-    }
-}
 
 fun main(args: Array<String>) {
+    // INITIALIZATION
+    // Create a connection to RabbitMQ
     val factory = ConnectionFactory()
-    factory.host = "localhost"
+    factory.host = Constants.RABBITMQ_HOST
+
     val connection = factory.newConnection()
     val channel = connection.createChannel()
-
-    channel.queueDeclare(QUEUE_NAME, true, false, false, null)
-    println(" [*] Waiting for messages.")
-
     channel.basicQos(1);
 
-    val deliverCallback =
-        DeliverCallback { _: String?, delivery: Delivery ->
-            val message = String(delivery.body, charset("UTF-8"))
-            println(" [x] Received '$message'")
-            try {
-                doWork(message)
-            } finally {
-                println(" [x] Done")
-                channel.basicAck(delivery.envelope.deliveryTag, false)
-            }
-        }
+    val carrierName = getCarrierName(args)
+    val routingKeys = getRoutingKeys(args)
 
-    channel.basicConsume(
-        QUEUE_NAME, false, deliverCallback
-    ) { _: String? -> }
+    // Create exchanges
+    // Agency requests exchange
+    channel.exchangeDeclare(
+        Constants.AGENCY_REQUESTS_EXCHANGE_NAME,
+        "direct"
+    )
+    // Carrier confirmations exchange
+    channel.exchangeDeclare(
+        Constants.CARRIER_CONFIRMATIONS_EXCHANGE_NAME,
+        "topic"
+    )
+
+    // Declare a queue to receive requests from agencies
+    val requestsQueueName = "${carrierName}_requests_queue"
+    channel.queueDeclare(
+        requestsQueueName,
+        false, // TODO - change to true
+        false,
+        false,
+        null
+    )
+    // Create respective bindings based on specified routing keys
+    routingKeys.forEach { routingKey ->
+        channel.queueBind(
+            requestsQueueName,
+            Constants.AGENCY_REQUESTS_EXCHANGE_NAME,
+            routingKey
+        )
+    }
+
+    println(" [*] Waiting for messages.")
+
+    val requestsHandler = RequestsHandler(
+        carrierName = carrierName,
+        requestsQueueName = requestsQueueName,
+        confirmationsExchangeName = Constants
+            .CARRIER_CONFIRMATIONS_EXCHANGE_NAME,
+        channel = channel
+    )
+    requestsHandler.handleRequests()
 }

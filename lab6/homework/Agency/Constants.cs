@@ -2,12 +2,9 @@ namespace Agency;
 
 public static class Constants
 {
+    // RabbitMQ
     public const string RabbitMqHost = "localhost";
-    public const string AgencyRequestsExchange = "agency_requests_exchange";
-    public static readonly Dictionary<string, string> QueueBindings = new()
-    {
-        {"passenger_transport_queue", "passenger"},
-        {"cargo_transport_queue", "cargo"},
-        {"emergency_transport_queue", "emergency"}
-    };
+    // Exchanges
+    public const string AgencyRequestsExchangeName = "agency_requests_exchange";
+    public const string CarrierConfirmationsExchangeName = "carrier_confirmations_exchange";
 }

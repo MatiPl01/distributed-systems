@@ -9,37 +9,63 @@ var factory = new ConnectionFactory { HostName = Constants.RabbitMqHost };
 using var connection = factory.CreateConnection();
 using var channel = connection.CreateModel();
 
-// Create an exchange
+// Get the agency name from the command line arguments
+var agencyName = Utils.GetAgencyName(args);
+
+// Create exchanges
+// Agency requests exchange
 channel.ExchangeDeclare(
-    exchange: Constants.AgencyRequestsExchange, 
+    exchange: Constants.AgencyRequestsExchangeName, 
     type: ExchangeType.Direct
 );
+// Carrier confirmations exchange
+channel.ExchangeDeclare(
+    exchange: Constants.CarrierConfirmationsExchangeName, 
+    type: ExchangeType.Topic
+);
 
-// Declare and bind queues (one queue per request type)
-foreach (var kvp in Constants.QueueBindings)
-{
-    // Declare the queue
-    QueueUtils.DeclareQueue(channel, kvp.Key);
-    // Bind the queue to the exchange
-    QueueUtils.BindQueue(channel, kvp.Key, Constants.AgencyRequestsExchange, kvp.Value);
-}
+// Declare a queue to receive confirmations from carriers
+var confirmationsQueueName = $"${agencyName}_confirmations_queue";
+channel.QueueDeclare(
+    queue: confirmationsQueueName,
+    durable: false, // TODO - change to true
+    exclusive: false,
+    autoDelete: false,
+    arguments: null
+);
+// Bind the the proper routing key (topic)
+channel.QueueBind(
+    queue: confirmationsQueueName,
+    exchange: Constants.CarrierConfirmationsExchangeName,
+    routingKey: $"confirmation.{agencyName}"
+);
 
-// PUBLISHING
+// Create the requests confirmations handler
+var confirmationsHandler = new ConfirmationsHandler(
+    confirmationsQueueName, 
+    channel
+);
+confirmationsHandler.HandleConfirmations();
+
 // Create the request manager
-var requestManager = new RequestManager(channel, Constants.AgencyRequestsExchange);
+var requestManager = new RequestManager(
+    agencyName, 
+    Constants.AgencyRequestsExchangeName, 
+    channel
+);
 
 // Create an array of request types
 var requestTypes = new[]
 {
     RequestType.PassengerTransport,
     RequestType.CargoTransport,
-    RequestType.EmergencyTransport
+    RequestType.SatelliteLaunch
 };
 
 // Read requests from the console and publish them
 while (true)
 {
-    Console.WriteLine("Enter a request type (1 - passenger, 2 - cargo, 3 - emergency) or 'exit' to quit");
+    Console.WriteLine("Enter a request type (1 - passenger, 2 - cargo, 3 - satellite) or 'exit' to quit");
     Console.Write(">>> ");
 
     var input = Console.ReadLine();

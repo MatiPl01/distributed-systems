@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json
 
 class RequestsHandler(
     private val carrierName: String,
-    private val requestsQueueName: String,
+    private val requestsQueueNames: List<String>,
     private val confirmationsExchangeName: String,
     private val channel: Channel
 ) {
@@ -18,12 +18,14 @@ class RequestsHandler(
                 handleRequest(delivery.envelope.routingKey, message)
             }
 
-        channel.basicConsume(
-            requestsQueueName,
-            true, // TODO - replace auto ack with manual ack
-            deliverCallback
-        ) { consumerTag: String? ->
-            println(" [x] Cancelled '$consumerTag'")
+        requestsQueueNames.forEach{ requestsQueueName ->
+            channel.basicConsume(
+                requestsQueueName,
+                true,
+                deliverCallback
+            ) { consumerTag: String? ->
+                println(" [x] Cancelled '$consumerTag'")
+            }
         }
     }
 

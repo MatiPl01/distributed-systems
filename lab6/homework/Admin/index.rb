@@ -21,11 +21,11 @@ admin_carriers_notifications_exchange = channel.fanout(ENV['ADMIN_CARRIERS_NOTIF
 admin_routing_exchange = channel.direct(ENV['ADMIN_ROUTING_EXCHANGE'])
 
 # Connect admin routing exchange to admin notifications exchanges
-admin_routing_exchange.bind(admin_agencies_notifications_exchange, routing_key: "agencies")
-admin_routing_exchange.bind(admin_agencies_notifications_exchange, routing_key: "all")
+admin_agencies_notifications_exchange.bind(admin_routing_exchange, routing_key: "agencies")
+admin_agencies_notifications_exchange.bind(admin_routing_exchange, routing_key: "all")
 
-admin_routing_exchange.bind(admin_carriers_notifications_exchange, routing_key: "carriers")
-admin_routing_exchange.bind(admin_carriers_notifications_exchange, routing_key: "all")
+admin_carriers_notifications_exchange.bind(admin_routing_exchange, routing_key: "carriers")
+admin_carriers_notifications_exchange.bind(admin_routing_exchange, routing_key: "all")
 
 # QUEUES
 # Create admin sniffer queue

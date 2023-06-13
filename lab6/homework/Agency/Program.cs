@@ -1,4 +1,5 @@
-﻿using Agency;
+﻿using System.Text;
+using Agency;
 using RabbitMQ.Client;
 using Constants = Agency.Constants;
 
@@ -32,7 +33,7 @@ channel.ExchangeDeclare(
 // QUEUES
 // Setup queues
 // Confirmations queue
-var confirmationsQueueName = $"${agencyName}_confirmations_queue";
+var confirmationsQueueName = $"{agencyName}_confirmations_queue";
 Utils.SetupQueue(
     channel, 
     queueName: confirmationsQueueName, 
@@ -40,13 +41,14 @@ Utils.SetupQueue(
     routingKey: $"confirmation.{agencyName}"
 );
 // Admin notifications queue
-var adminNotificationsQueueName = $"${agencyName}_admin_notifications_queue";
+var adminNotificationsQueueName = $"{agencyName}_admin_queue";
 Utils.SetupQueue(
     channel, 
     queueName: adminNotificationsQueueName, 
-    exchangeName: Constants.AdminAgenciesNotificationsExchangeName, 
-    routingKey: "aaa"
+    exchangeName: Constants.AdminAgenciesNotificationsExchangeName
 );
+
+Console.WriteLine($"[*] {agencyName} started.");
 
 // Create the requests confirmations handler
 var confirmationsHandler = new ConfirmationsHandler(

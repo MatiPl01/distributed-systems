@@ -28,7 +28,7 @@ public static class Utils
     {
         channel.QueueDeclare(
             queue: queueName,
-            durable: false, // TODO - change to true
+            durable: false,
             exclusive: false,
             autoDelete: false,
             arguments: null
@@ -44,9 +44,9 @@ public static class Utils
         );
     }
     
-    public static void SetupQueue(IModel channel, string queueName, string exchangeName, string routingKey)
+    public static void SetupQueue(IModel channel, string queueName, string exchangeName, string routingKey = "")
     {
         DeclareQueue(channel, queueName);
-        BindQueue(channel, queueName, exchangeName, routingKey);
+        BindQueue(channel, queueName, exchangeName, routingKey ?? "");
     }
 }

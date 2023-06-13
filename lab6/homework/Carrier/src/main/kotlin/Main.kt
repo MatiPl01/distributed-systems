@@ -31,29 +31,32 @@ fun main(args: Array<String>) {
     )
 
     // QUEUES
-    // Declare a queue to receive requests from agencies
-    val requestsQueueName = "${carrierName}_requests_queue"
-    setupQueue(
-        channel = channel,
-        queueName = requestsQueueName,
-        exchangeName = Constants.AGENCY_REQUESTS_EXCHANGE_NAME,
-        routingKeys = routingKeys
-    )
+    // Declare queues to receive requests from agencies
+    val requestsQueueNames = routingKeys.mapNotNull { Constants.bindings[it] }
+    routingKeys.forEach { routingKey ->
+        val queueName = Constants.bindings[routingKey]
+        setupQueue(
+            channel = channel,
+            queueName = queueName!!,
+            exchangeName = Constants.AGENCY_REQUESTS_EXCHANGE_NAME,
+            routingKey = routingKey
+        )
+    }
     // Declare a queue to receive admin notifications
-    val adminNotificationsQueueName = "${carrierName}_admin_notifications_queue"
+    val adminNotificationsQueueName = "${carrierName}_admin_queue"
     setupQueue(
         channel = channel,
         queueName = adminNotificationsQueueName,
-        exchangeName = Constants.ADMIN_CARRIERS_NOTIFICATIONS_EXCHANGE_NAME,
-        routingKeys = listOf()
+        exchangeName = Constants.ADMIN_CARRIERS_NOTIFICATIONS_EXCHANGE_NAME
     )
 
+    println(" [*] $carrierName started.")
     println(" [*] Waiting for messages.")
 
     // Create the agencies requests handler
     val requestsHandler = RequestsHandler(
         carrierName = carrierName,
-        requestsQueueName = requestsQueueName,
+        requestsQueueNames = requestsQueueNames,
         confirmationsExchangeName = Constants
             .CARRIER_CONFIRMATIONS_EXCHANGE_NAME,
         channel = channel

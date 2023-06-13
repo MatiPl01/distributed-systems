@@ -30,21 +30,18 @@ fun setupQueue(
     channel: Channel,
     queueName: String,
     exchangeName: String,
-    routingKeys: List<String>
+    routingKey: String? = ""
 ) {
     channel.queueDeclare(
         queueName,
-        false, // TODO - change to true
+        false,
         false,
         false,
         null
     )
-    // Create respective bindings based on specified routing keys
-    routingKeys.forEach { routingKey ->
-        channel.queueBind(
-            queueName,
-            exchangeName,
-            routingKey
-        )
-    }
+    channel.queueBind(
+        queueName,
+        exchangeName,
+        routingKey
+    )
 }

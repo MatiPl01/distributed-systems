@@ -29,7 +29,7 @@ public class AdminNotificationsHandler
         
         _channel.BasicConsume(
             queue: _queueName,
-            autoAck: true, // TODO - remove auto ack
+            autoAck: true,
             consumer: consumer
         );
         

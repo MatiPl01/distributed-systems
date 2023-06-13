@@ -14,7 +14,7 @@ class AdminNotificationsHandler(
 
         channel.basicConsume(
             queueName,
-            true, // TODO - replace auto ack with manual ack
+            true,
             deliverCallback
         ) { consumerTag: String? ->
             println(" [x] Cancelled '$consumerTag'")

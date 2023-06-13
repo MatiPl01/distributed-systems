@@ -8,15 +8,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="48cbe870-cf0d-4baf-93a8-1c3664f58bda" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/AdminNotificationsHandler.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../Carrier/src/main/kotlin/AdminNotificationsHandler.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Agency/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Agency/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AgencyRequest.cs" beforeDir="false" afterPath="$PROJECT_DIR$/AgencyRequest.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Constants.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Constants.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Utils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Utils.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Carrier/src/main/kotlin/AgencyRequest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../Carrier/src/main/kotlin/AgencyRequest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Carrier/src/main/kotlin/ConfirmationResponse.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../Carrier/src/main/kotlin/ConfirmationResponse.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Carrier/src/main/kotlin/Constants.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../Carrier/src/main/kotlin/Constants.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Carrier/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../Carrier/src/main/kotlin/Main.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Carrier/src/main/kotlin/RequestsHandler.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../Carrier/src/main/kotlin/RequestsHandler.kt" afterDir="false" />
@@ -110,7 +104,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1686597713717</updated>
-      <workItem from="1686597714827" duration="25876000" />
+      <workItem from="1686597714827" duration="29546000" />
     </task>
     <servers />
   </component>

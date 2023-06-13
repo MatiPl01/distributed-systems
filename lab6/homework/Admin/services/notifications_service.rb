@@ -17,7 +17,7 @@ module Services
         return
       end
       # Publish message to admin_routing_exchange with a corresponding routing_key
-      @exchange.publish(message, routing_key: "aaa")
+      @exchange.publish(message, routing_key: notification_type)
     end
   end
 end

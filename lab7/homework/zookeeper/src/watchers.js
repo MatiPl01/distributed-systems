@@ -3,15 +3,12 @@ import { client } from "./client.js";
 import { countDescendants } from "./utils.js";
 import { killApp, openApp } from "./appUtils.js";
 
-let openedAppName;
-
 export function createWatcher(znode_path, appName) {
   client.exists(
     znode_path,
     async (event) => {
       if (event.type === zookeeper.Event.NODE_CREATED) {
         if (znode_path === "/z") {
-          openedAppName = appName;
           openApp(appName);
           console.log("Graphical application started");
         } else {
@@ -24,15 +21,13 @@ export function createWatcher(znode_path, appName) {
           });
         }
       } else if (event.type === zookeeper.Event.NODE_DELETED) {
-        if (znode_path === "/z" && openedAppName) {
-          if (!openedAppName) {
+        if (znode_path === "/z") {
+          if (!appName) {
             console.error("No graphical app to stop");
             return;
           }
           try {
-            killApp(openedAppName);
-            openedAppName = null;
-            console.log("Graphical application stopped");
+            killApp(appName);
           } catch (error) {
             console.error("Error stopping graphical app:", error);
           }

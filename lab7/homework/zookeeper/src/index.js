@@ -1,7 +1,13 @@
 import readline from "readline";
 
 import api from "./api.js";
-import { createNode, deleteNode, treePaths, treeToJson } from "./utils.js";
+import {
+  createNode,
+  deleteNode,
+  getData,
+  treePaths,
+  treeToJson,
+} from "./utils.js";
 import { createWatcher } from "./watchers.js";
 import { client } from "./client.js";
 import { killApp, openApp } from "./appUtils.js";
@@ -21,6 +27,8 @@ client.connect();
 const server = api.listen(3000, () => {
   console.log("🚀 REST Server listening on port 3000");
 });
+
+server.on("error", () => {});
 
 export function promptUser() {
   rl.question("", (command) => {
@@ -59,7 +67,7 @@ async function handleCommand(command) {
 
       case "delete":
         try {
-          createWatcher(znode_path);
+          createWatcher(znode_path, await getData(znode_path));
           await deleteNode(znode_path);
           console.log(`${znode_path} deleted.`);
         } catch (error) {

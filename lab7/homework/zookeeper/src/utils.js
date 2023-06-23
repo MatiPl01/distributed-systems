@@ -12,7 +12,7 @@ export async function createNode(path, data = "") {
           console.error("Error creating node:", error);
           reject(error);
         } else {
-          console.log(`Node created at path: ${actualPath}`);
+          console.log(`Node created at path: ${actualPath} with data: ${data}`);
           resolve(actualPath);
         }
       }
@@ -121,6 +121,18 @@ export async function countDescendants(path) {
           childCounts.forEach((childCount) => (count += childCount));
         }
         resolve(count);
+      }
+    });
+  });
+}
+
+export function getData(path) {
+  return new Promise((resolve, reject) => {
+    client.getData(path, (error, data) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(data.toString());
       }
     });
   });

@@ -31,4 +31,8 @@
 - ~~[Exercises](./lab6/exercises)~~ (unfinished)
 - [Homework](./lab6/homework)
 
-\* *I removed all `examples` and `exercises` directories from language statistics tracking because most of code in there is a boilerplate code and wasn't written by me*
+## Lab 7: Zookeeper
+
+- [Homework](./lab7/homework)
+
+\* _I removed all `examples` and `exercises` directories from language statistics tracking because most of code in there is a boilerplate code and wasn't written by me_

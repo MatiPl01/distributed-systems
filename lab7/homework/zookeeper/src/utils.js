@@ -94,10 +94,6 @@ export function treePaths(tree) {
 }
 
 function treePathsHelper(tree, paths, path) {
-  if (!tree?.name) {
-    console.log("Tree is empty.");
-    return;
-  }
   path.push(tree.name.split("/").pop());
   if (tree.children.length === 0) {
     paths.push(path.join("/"));

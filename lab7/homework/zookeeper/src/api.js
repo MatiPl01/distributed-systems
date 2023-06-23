@@ -8,7 +8,7 @@ api.get("/tree", async (_, res) => {
     const tree = await treeToJson("/z");
     res.json(tree);
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    res.status(200).send({});
   }
 });
 

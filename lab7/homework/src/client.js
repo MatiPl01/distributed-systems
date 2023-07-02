@@ -20,7 +20,7 @@ function startTimer() {
 export const createClient = (host, timeoutMs = 15000) => {
   if (client) return client;
 
-  logger.log("client", "creating a client...");
+  logger.log("Client", "🙍 Creating a client...");
 
   const config = {
     connect: host,
@@ -34,7 +34,7 @@ export const createClient = (host, timeoutMs = 15000) => {
   client.on("close", () => {
     stopTimer();
 
-    logger.debug("client", `session closed, id=${client.client_id}`);
+    logger.debug("Client", `Session closed, id=${client.client_id}`);
 
     client = null;
   });
@@ -42,13 +42,13 @@ export const createClient = (host, timeoutMs = 15000) => {
   client.on("connecting", () => {
     startTimer();
 
-    logger.debug("client", `session connecting, id=${client.client_id}`);
+    logger.debug("Client", `Session connecting, id=${client.client_id}`);
   });
 
   client.on("connect", () => {
     stopTimer();
 
-    logger.debug("client", `session connect, id=${client.client_id}`);
+    logger.debug("Client", `Session connect, id=${client.client_id}`);
   });
 
   setTimeout(() => {

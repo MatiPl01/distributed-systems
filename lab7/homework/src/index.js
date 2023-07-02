@@ -1,11 +1,13 @@
 import "dotenv/config";
-import { createWatchers } from "./watchers.js";
-import { createClient } from "./client.js";
+
 import logger from "./logger.js";
+import { createClient } from "./client.js";
+import { watchRootNode } from "./watchers.js";
 
 const client = createClient(process.env.ZOOKEEPER_HOST);
 
 client.on("connect", () => {
-  logger.log("client", "🚀 connected to zookeeper!");
-  createWatchers(client);
+  logger.log("Client", "📶 Connected to zookeeper!");
+  // Watch for changes in the root node (create/delete)
+  watchRootNode(client);
 });

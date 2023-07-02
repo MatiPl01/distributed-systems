@@ -8,3 +8,5 @@ export const COLORS = {
   // Reset
   Reset: "\x1b[0m",
 };
+
+export const ROOT_NODE = "/z";

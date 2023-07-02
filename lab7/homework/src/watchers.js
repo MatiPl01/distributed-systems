@@ -14,6 +14,8 @@ export const watchNode = (client, nodePath) => {
 
       // Set up a new watcher every time
       watchNode(client, nodePath);
+      watchDataChanges(client, nodePath);
+      watchDescendants(client, nodePath);
 
       if (type === ZooKeeper.ZOO_CREATED_EVENT) {
         logger.log("Root Watcher", `Root node ${path} is created.`);
@@ -27,7 +29,7 @@ export const watchNode = (client, nodePath) => {
               );
               return;
             }
-            const appName = data.toString();
+            appName = data.toString();
             logger.log("App", `Opening app: ${appName}`);
             openApp(appName);
           }
